@@ -10,7 +10,7 @@ public class SocketServer<T> : ISocketServer<T>
 {
     public async Task<T> Recieve(SocketServerSetting socketServerSetting)
     {
-        IPAddress ipAddress = await GetIpAddressAsync(socketServerSetting.Address);
+        IPAddress ipAddress = await IpHelper.GetIpAddressAsync(socketServerSetting.Address);
         IPEndPoint ipEndPoint = new(ipAddress, port: socketServerSetting.port);
         
         using Socket listener = new(
@@ -29,19 +29,5 @@ public class SocketServer<T> : ISocketServer<T>
         T result = JsonConvert.DeserializeObject<T>(recievedMessage);
         return result;
     }
-
-    private async Task<IPAddress> GetIpAddressAsync(string address)
-    {
-        IPAddress ipAddress;
-        IPAddress.TryParse(address, out ipAddress);
-        
-        // address is not in ip format
-        if (ipAddress is null)
-        {
-            IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(address); 
-            ipAddress = ipHostInfo.AddressList[0];
-        }
-
-        return ipAddress;
-    }
+    
 }
